@@ -1,0 +1,75 @@
+{
+	"VCAP_SERVICES": {
+		"destination": [
+			{
+				"label": "destination",
+				"provider": null,
+				"plan": "lite",
+				"name": "sap-user-app-destination-service",
+				"tags": [
+					"destination",
+					"conn",
+					"connsvc"
+				],
+				"instance_guid": "dda5484f-28d5-44a6-b58c-59f6a27ca53e",
+				"instance_name": "sap-user-app-destination-service",
+				"binding_guid": "dbf9d839-5869-4ea3-b0ab-8f77dc2b9a47",
+				"binding_name": null,
+				"credentials": {
+					"tenantmode": "dedicated",
+					"token-type": [
+						"xsuaa"
+					],
+					"clientid": "sb-clonedda5484f28d544a6b58c59f6a27ca53e!b416222|destination-xsappname!b62",
+					"credential-type": "binding-secret",
+					"xsappname": "clonedda5484f28d544a6b58c59f6a27ca53e!b416222|destination-xsappname!b62",
+					"clientsecret": "dbf9d839-5869-4ea3-b0ab-8f77dc2b9a47$tF4w_xa1TDdoVelMxrZW75bBrfBgNcV0sZtQ4ZJUzNY=",
+					"uri": "https://destination-configuration.cfapps.us10.hana.ondemand.com",
+					"url": "https://978e111ftrial.authentication.us10.hana.ondemand.com",
+					"uaadomain": "authentication.us10.hana.ondemand.com",
+					"instanceid": "dda5484f-28d5-44a6-b58c-59f6a27ca53e",
+					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAluMVZ91khbnvJyT9hiJi\no8Q4bheZ2J/3YUqiS55K2JCkHFIuKJoXoOuUntFzpStGVrZhwtp1KItiXMJvwz6B\nCbGk8c8piKrGMsJozf1gSFl2BEKcthlo6S8nuyV2pI7YcnbNiIqFeeDw8zLHsN4q\nUSfSNC7wGNfYqIFdkCOpM0cky+LNDmWFnqzgGUSVl1e55yW/LEb8uaCEjFTDB4oH\nUPRem3NfMSXK8kOUc1TValzHmBcfViSW/p2/n04Gvef9j8y5JYiFEzPDQpy+z6OH\n+rQFnyPe/poewrPkJsoc8zIR9BmLq6h9Y31pEauvFCPUjSwiJjVEOQnhGOoIAl4c\nEQIDAQAB\n-----END PUBLIC KEY-----",
+					"identityzone": "978e111ftrial",
+					"tenantid": "b44cef90-cce9-432b-82a7-56b9e1663031"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		],
+		"xsuaa": [
+			{
+				"label": "xsuaa",
+				"provider": null,
+				"plan": "application",
+				"name": "sap-user-app-uaa",
+				"tags": [
+					"xsuaa"
+				],
+				"instance_guid": "6341ea7d-60b5-41b3-8cd6-2a1694fdb4a3",
+				"instance_name": "sap-user-app-uaa",
+				"binding_guid": "17de14d7-1735-493d-9c47-42dd2127e1d8",
+				"binding_name": null,
+				"credentials": {
+					"tenantmode": "dedicated",
+					"sburl": "https://internal-xsuaa.authentication.us10.hana.ondemand.com",
+					"subaccountid": "b44cef90-cce9-432b-82a7-56b9e1663031",
+					"credential-type": "instance-secret",
+					"clientid": "sb-sap-user-app!t416222",
+					"xsappname": "sap-user-app!t416222",
+					"clientsecret": "KN7aWvkurxbSrhGYOhizTh7zApM=",
+					"serviceInstanceId": "6341ea7d-60b5-41b3-8cd6-2a1694fdb4a3",
+					"url": "https://978e111ftrial.authentication.us10.hana.ondemand.com",
+					"uaadomain": "authentication.us10.hana.ondemand.com",
+					"verificationkey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAluMVZ91khbnvJyT9hiJi\no8Q4bheZ2J/3YUqiS55K2JCkHFIuKJoXoOuUntFzpStGVrZhwtp1KItiXMJvwz6B\nCbGk8c8piKrGMsJozf1gSFl2BEKcthlo6S8nuyV2pI7YcnbNiIqFeeDw8zLHsN4q\nUSfSNC7wGNfYqIFdkCOpM0cky+LNDmWFnqzgGUSVl1e55yW/LEb8uaCEjFTDB4oH\nUPRem3NfMSXK8kOUc1TValzHmBcfViSW/p2/n04Gvef9j8y5JYiFEzPDQpy+z6OH\n+rQFnyPe/poewrPkJsoc8zIR9BmLq6h9Y31pEauvFCPUjSwiJjVEOQnhGOoIAl4c\nEQIDAQAB\n-----END PUBLIC KEY-----",
+					"apiurl": "https://api.authentication.us10.hana.ondemand.com",
+					"identityzone": "978e111ftrial",
+					"identityzoneid": "b44cef90-cce9-432b-82a7-56b9e1663031",
+					"tenantid": "b44cef90-cce9-432b-82a7-56b9e1663031",
+					"zoneid": "b44cef90-cce9-432b-82a7-56b9e1663031"
+				},
+				"syslog_drain_url": null,
+				"volume_mounts": []
+			}
+		]
+	}
+}
