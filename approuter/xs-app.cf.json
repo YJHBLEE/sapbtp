@@ -8,6 +8,20 @@
       "service": "sap-approuter-userapi"
     },
     {
+      "source": "/sfsf-api/(.*)",
+      "target": "$1",
+      "destination": "SuccessFactors_API",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "/ecp-api/(.*)",
+      "target": "$1",
+      "destination": "ECP_API",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
       "source": "(.*)",
       "target": "ui5webcomponents/$1",
       "service": "html5-apps-repo-rt",
