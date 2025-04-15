@@ -1,20 +1,10 @@
 {
 	"name": "standalone-approuter-ui5webcomponents",
-	"version": "1.0.0",
-	"description": "Employee Hub - HR Self-Service Portal",
-	"scripts": {
-	  "start": "bash start-local.sh",
-	  "start:local": "bash start-local.sh",
-	  "setup:local": "bash local-setup.sh",
-	  "build": "bash build.sh",
-	  "deploy": "cf deploy mta_archives/standalone-approuter-ui5webcomponents_1.0.0.mtar",
-	  "clean": "rm -rf mta_archives && cd ui5webcomponents && npm run clean"
-	},
 	"dependencies": {
-	  "@ui5/webcomponents": "^2.9.0",
-	  "mbt": "^1.2.7"
+		"mbt": "^1.2.7"
 	},
-	"devDependencies": {
-	  "concurrently": "^8.2.0"
-	}
-  }
+	"scripts": {
+		"build": "mbt build"
+	},
+	"version": "1.0.0"
+}

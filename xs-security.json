@@ -2,12 +2,6 @@
     "xsappname": "html5_approuter",
     "tenant-mode": "dedicated",
     "description": "Security profile of called application",
-    "oauth2-configuration": {
-      "redirect-uris": [
-        "https://978e111ftrial-978e111ftrial-dev-approuter.cfapps.us10-001.hana.ondemand.com/**",
-        "http://localhost:5001/**"
-      ]
-    },
     "scopes": [
       {
         "name": "uaa.user",
