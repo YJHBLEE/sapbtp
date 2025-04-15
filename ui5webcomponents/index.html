@@ -38,8 +38,59 @@
       ui5-panel {
         margin-bottom: 1rem;
       }
-      ui5-table {
-        width: 100%;
+      ui5-avatar {
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      .employee-photo {
+        display: inline-block;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        overflow: hidden;
+        vertical-align: middle;
+        margin-right: 0.5rem;
+      }
+      .name-with-photo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      #employeeAvatar {
+        width: 5rem;
+        height: 5rem;
+      }
+      .employee-results {
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: var(--sapContent_Shadow1, 0 0 0.25rem 0 rgba(0,0,0,0.2));
+        background-color: white;
+      }
+      .employee-list-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        cursor: pointer;
+      }
+      .employee-list-item:hover {
+        background-color: var(--sapList_Hover_Background, #f5f5f5);
+      }
+      .employee-list-item-details {
+        margin-left: 1rem;
+        flex-grow: 1;
+      }
+      .employee-list-item-name {
+        font-weight: bold;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+      .employee-list-item-subtitle {
+        color: var(--sapContent_LabelColor, #6a6d70);
+        font-size: 0.875rem;
+      }
+      #employeeResultsContainer {
+        display: none;
       }
     </style>
   </head>
@@ -59,33 +110,24 @@
     <div class="content-container">
       <!-- Search Container -->
       <div class="search-container">
-        <ui5-input id="employeeSearch" placeholder="Search employee by name or ID..."></ui5-input>
+        <ui5-input id="employeeSearch" placeholder="Search employee by name or email (min 2 characters)..."></ui5-input>
         <ui5-button id="searchButton" design="Emphasized">Search</ui5-button>
       </div>
 
-      <!-- Employee List -->
-      <ui5-panel id="employeeListPanel" header-text="Employee Directory" collapsed>
-        <ui5-table id="employeeTable">
-          <ui5-table-column slot="columns" style="width: 12rem">
-            <ui5-label>Employee ID</ui5-label>
-          </ui5-table-column>
-          <ui5-table-column slot="columns">
-            <ui5-label>Name</ui5-label>
-          </ui5-table-column>
-          <ui5-table-column slot="columns">
-            <ui5-label>Position</ui5-label>
-          </ui5-table-column>
-          <ui5-table-column slot="columns">
-            <ui5-label>Department</ui5-label>
-          </ui5-table-column>
-          <ui5-table-column slot="columns">
-            <ui5-label>Actions</ui5-label>
-          </ui5-table-column>
-        </ui5-table>
-      </ui5-panel>
+      <!-- Employee Results List -->
+      <div id="employeeResultsContainer" class="employee-results">
+        <ui5-list id="employeeList" mode="SingleSelect"></ui5-list>
+      </div>
+
+      <!-- Empty State Message -->
+      <div id="emptyStateMessage" style="text-align: center; padding: 2rem;">
+        <ui5-icon name="employee" style="font-size: 3rem; color: var(--sapContent_NonInteractiveIconColor);"></ui5-icon>
+        <ui5-title level="H2">Employee Search</ui5-title>
+        <ui5-label>Enter a name or email to search for employees</ui5-label>
+      </div>
 
       <!-- Employee Profile Section -->
-      <div id="employeeProfileSection" style="margin-top: 1rem;">
+      <div id="employeeProfileSection" style="margin-top: 1rem; display: none;">
         <ui5-card id="employeeProfileCard" class="employee-profile">
           <ui5-card-header
             id="employeeCardHeader"
@@ -136,6 +178,13 @@
                   <ui5-date-picker id="employeeHireDate" readonly></ui5-date-picker>
                 </div>
               </div>
+            </div>
+            
+            <!-- API Status Message -->
+            <div id="apiStatusMessage" style="margin: 1rem 0; display: none;">
+              <ui5-message-strip design="Information" style="margin-bottom: 1rem;">
+                Loading data from SuccessFactors API...
+              </ui5-message-strip>
             </div>
             
             <!-- Performance Indicators -->

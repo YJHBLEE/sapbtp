@@ -9,13 +9,14 @@ import "@ui5/webcomponents/dist/Title.js";
 import "@ui5/webcomponents/dist/Input.js";
 import "@ui5/webcomponents/dist/Card.js";
 import "@ui5/webcomponents/dist/CardHeader.js";
-import "@ui5/webcomponents/dist/Table.js";
-import "@ui5/webcomponents/dist/TableColumn.js";
-import "@ui5/webcomponents/dist/TableRow.js";
-import "@ui5/webcomponents/dist/TableCell.js";
-import "@ui5/webcomponents/dist/Panel.js";
+import "@ui5/webcomponents/dist/List.js";
+import "@ui5/webcomponents/dist/StandardListItem.js";
+import "@ui5/webcomponents/dist/CustomListItem.js";
 import "@ui5/webcomponents/dist/RatingIndicator.js";
 import "@ui5/webcomponents/dist/ProgressIndicator.js";
+import "@ui5/webcomponents/dist/BusyIndicator.js";
+import "@ui5/webcomponents/dist/Toast.js";
+import "@ui5/webcomponents/dist/Icon.js";
 import "@ui5/webcomponents-fiori/dist/ShellBar.js";
 import "@ui5/webcomponents-fiori/dist/ShellBarItem.js";
 import "@ui5/webcomponents/dist/Avatar.js";
@@ -26,85 +27,22 @@ import "@ui5/webcomponents-icons/dist/AllIcons.js";
 import { getTheme, setTheme } from "@ui5/webcomponents-base/dist/config/Theme.js";
 import "@ui5/webcomponents/dist/Assets";
 
-// Mock Employee Data
-const mockEmployees = [
-  {
-    id: "EMP001",
-    firstName: "John",
-    lastName: "Smith",
-    email: "john.smith@company.com",
-    phone: "+1 (555) 123-4567",
-    department: "Engineering",
-    position: "Senior Developer",
-    birthDate: "1985-06-15",
-    hireDate: "2018-03-01",
-    performanceRating: 4,
-    projectCompletion: 92,
-    teamCollaboration: 4.5
-  },
-  {
-    id: "EMP002",
-    firstName: "Sarah",
-    lastName: "Johnson",
-    email: "sarah.johnson@company.com",
-    phone: "+1 (555) 234-5678",
-    department: "Marketing",
-    position: "Marketing Manager",
-    birthDate: "1990-09-23",
-    hireDate: "2019-05-15",
-    performanceRating: 5,
-    projectCompletion: 100,
-    teamCollaboration: 5
-  },
-  {
-    id: "EMP003",
-    firstName: "Michael",
-    lastName: "Williams",
-    email: "michael.williams@company.com",
-    phone: "+1 (555) 345-6789",
-    department: "Finance",
-    position: "Financial Analyst",
-    birthDate: "1988-11-05",
-    hireDate: "2017-08-10",
-    performanceRating: 3.5,
-    projectCompletion: 85,
-    teamCollaboration: 4
-  },
-  {
-    id: "EMP004",
-    firstName: "Emma",
-    lastName: "Davis",
-    email: "emma.davis@company.com",
-    phone: "+1 (555) 456-7890",
-    department: "Human Resources",
-    position: "HR Specialist",
-    birthDate: "1992-02-28",
-    hireDate: "2020-01-15",
-    performanceRating: 4.5,
-    projectCompletion: 95,
-    teamCollaboration: 4.5
-  },
-  {
-    id: "EMP005",
-    firstName: "David",
-    lastName: "Brown",
-    email: "david.brown@company.com",
-    phone: "+1 (555) 567-8901",
-    department: "Sales",
-    position: "Sales Representative",
-    birthDate: "1984-07-14",
-    hireDate: "2016-11-01",
-    performanceRating: 4,
-    projectCompletion: 89,
-    teamCollaboration: 3.5
-  }
-];
+// Import SF API utilities
+import { searchUsers, getUserDetails, getUserPhoto, getEmployeePerformance } from './sfApi.js';
 
 // DOM Elements
 const searchInput = document.getElementById("employeeSearch");
 const searchButton = document.getElementById("searchButton");
-const employeeTable = document.getElementById("employeeTable");
-const employeeListPanel = document.getElementById("employeeListPanel");
+const employeeList = document.getElementById("employeeList");
+const employeeResultsContainer = document.getElementById("employeeResultsContainer");
+const emptyStateMessage = document.getElementById("emptyStateMessage");
+const employeeProfileSection = document.getElementById("employeeProfileSection");
+
+// State management 
+let isLoading = false;
+let currentEmployees = [];
+let selectedEmployeeId = null;
+let searchTimeout = null;
 
 // Get current user info
 fetch("/user-api/currentUser").then((res) => {
@@ -124,179 +62,283 @@ fetch("/user-api/currentUser").then((res) => {
   }
 });
 
-// Initialize Employee Table
-function initializeEmployeeTable() {
-  // Clear existing rows
-  const existingRows = employeeTable.querySelectorAll("ui5-table-row");
-  existingRows.forEach(row => row.remove());
-  
-  // Add rows for each employee
-  mockEmployees.forEach(employee => {
-    const row = document.createElement("ui5-table-row");
-    
-    // ID Cell
-    const idCell = document.createElement("ui5-table-cell");
-    idCell.textContent = employee.id;
-    row.appendChild(idCell);
-    
-    // Name Cell
-    const nameCell = document.createElement("ui5-table-cell");
-    nameCell.textContent = `${employee.firstName} ${employee.lastName}`;
-    row.appendChild(nameCell);
-    
-    // Position Cell
-    const positionCell = document.createElement("ui5-table-cell");
-    positionCell.textContent = employee.position;
-    row.appendChild(positionCell);
-    
-    // Department Cell
-    const deptCell = document.createElement("ui5-table-cell");
-    deptCell.textContent = employee.department;
-    row.appendChild(deptCell);
-    
-    // Actions Cell
-    const actionsCell = document.createElement("ui5-table-cell");
-    const viewButton = document.createElement("ui5-button");
-    viewButton.textContent = "View Profile";
-    viewButton.design = "Transparent";
-    viewButton.icon = "employee";
-    viewButton.classList.add("action-button");
-    viewButton.addEventListener("click", () => displayEmployeeProfile(employee));
-    actionsCell.appendChild(viewButton);
-    row.appendChild(actionsCell);
-    
-    // Store employee data with the row for reference
-    row.addEventListener("click", () => displayEmployeeProfile(employee));
-    
-    // Add row to table
-    employeeTable.appendChild(row);
-  });
-}
-
-// Display Employee Profile
-function displayEmployeeProfile(employee) {
-  // Update card header
-  const cardHeader = document.getElementById("employeeCardHeader");
-  cardHeader.title = `${employee.firstName} ${employee.lastName}`;
-  cardHeader.subtitle = `${employee.position}`;
-  
-  // Update avatar
-  const avatar = document.getElementById("employeeAvatar");
-  avatar.initials = `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
-  
-  // Update personal information
-  document.getElementById("employeeName").value = `${employee.firstName} ${employee.lastName}`;
-  document.getElementById("employeeEmail").value = employee.email;
-  document.getElementById("employeePhone").value = employee.phone;
-  document.getElementById("employeeBirthday").value = employee.birthDate;
-  
-  // Update employment details
-  document.getElementById("employeeId").value = employee.id;
-  document.getElementById("employeeDepartment").value = employee.department;
-  document.getElementById("employeePosition").value = employee.position;
-  document.getElementById("employeeHireDate").value = employee.hireDate;
-  
-  // Update performance metrics
-  document.getElementById("performanceRating").value = employee.performanceRating;
-  document.getElementById("projectCompletion").value = employee.projectCompletion;
-  document.getElementById("teamCollaboration").value = employee.teamCollaboration;
-  
-  // Scroll to profile section
-  document.getElementById("employeeProfileSection").scrollIntoView({ behavior: 'smooth' });
-}
-
 // Setup search functionality
 searchButton.addEventListener("click", () => {
-  searchEmployee();
-});
-
-searchInput.addEventListener("keypress", (event) => {
-  if (event.key === "Enter") {
-    searchEmployee();
+  const searchTerm = searchInput.value.trim();
+  if (searchTerm.length >= 2) {
+    searchEmployee(searchTerm);
+  } else {
+    showToast("Please enter at least 2 characters to search");
   }
 });
 
-function searchEmployee() {
-  const searchTerm = searchInput.value.trim().toLowerCase();
+// Setup auto-complete search with debounce
+searchInput.addEventListener("input", (event) => {
+  const searchTerm = event.target.value.trim();
   
-  if (searchTerm) {
-    // Filter employees based on search term
-    const filteredEmployees = mockEmployees.filter(employee => 
-      employee.id.toLowerCase().includes(searchTerm) ||
-      employee.firstName.toLowerCase().includes(searchTerm) ||
-      employee.lastName.toLowerCase().includes(searchTerm) ||
-      employee.department.toLowerCase().includes(searchTerm) ||
-      employee.position.toLowerCase().includes(searchTerm)
-    );
+  // Clear any existing timeout
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  // Show empty state and hide results when search is cleared
+  if (searchTerm.length === 0) {
+    employeeResultsContainer.style.display = "none";
+    emptyStateMessage.style.display = "block";
+    employeeProfileSection.style.display = "none";
+    return;
+  }
+  
+  // Only search if at least 2 characters are entered
+  if (searchTerm.length >= 2) {
+    // Set timeout for 500ms debounce
+    searchTimeout = setTimeout(() => {
+      searchEmployee(searchTerm);
+    }, 500);
+  }
+});
+
+// Show/hide loading indicator
+function setLoading(loading) {
+  isLoading = loading;
+  
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  if (!loadingIndicator && loading) {
+    // Create loading indicator if it doesn't exist
+    const busyIndicator = document.createElement("ui5-busy-indicator");
+    busyIndicator.id = "loadingIndicator";
+    busyIndicator.size = "Medium";
+    busyIndicator.active = true;
+    busyIndicator.style.display = "block";
+    busyIndicator.style.margin = "2rem auto";
     
-    if (filteredEmployees.length > 0) {
-      // Show list panel if it was collapsed
-      employeeListPanel.collapsed = false;
-      
-      // Update table with filtered results
-      updateEmployeeTable(filteredEmployees);
+    // Insert before the employee results container
+    employeeResultsContainer.parentNode.insertBefore(busyIndicator, employeeResultsContainer);
+  } else if (loadingIndicator) {
+    // Remove loading indicator if it exists
+    if (loading)     if (loading) {
+      loadingIndicator.style.display = "block";
+    } else {
+      loadingIndicator.style.display = "none";
+    }
+  }
+}
+
+// Search employee using SuccessFactors API
+async function searchEmployee(searchTerm) {
+  if (!searchTerm || searchTerm.length < 2) {
+    showToast("Please enter at least 2 characters to search");
+    return;
+  }
+  
+  try {
+    setLoading(true);
+    
+    // Call the SuccessFactors API to search users
+    const employees = await searchUsers(searchTerm);
+    currentEmployees = employees; // Store for reference
+    
+    if (employees.length > 0) {
+      // Update results list
+      await updateEmployeeList(employees);
       
       // Display first match
-      displayEmployeeProfile(filteredEmployees[0]);
+      await displayEmployeeProfile(employees[0]);
+      
+      // Show results and hide empty state
+      employeeResultsContainer.style.display = "block";
+      emptyStateMessage.style.display = "none";
+      employeeProfileSection.style.display = "block";
     } else {
-      showMessage("No employees found matching your search criteria.");
+      showToast("No employees found matching your search criteria.");
+      employeeResultsContainer.style.display = "none";
+      emptyStateMessage.style.display = "block";
+      employeeProfileSection.style.display = "none";
     }
-  } else {
-    showMessage("Please enter a search term");
+  } catch (error) {
+    console.error("Error searching employees:", error);
+    showToast("An error occurred while searching. Please try again.");
+    employeeResultsContainer.style.display = "none";
+    emptyStateMessage.style.display = "block";
+  } finally {
+    setLoading(false);
   }
 }
 
-function updateEmployeeTable(employees) {
-  // Clear existing rows
-  const existingRows = employeeTable.querySelectorAll("ui5-table-row");
-  existingRows.forEach(row => row.remove());
+// Update employee list with search results
+async function updateEmployeeList(employees) {
+  // Clear existing items
+  while (employeeList.firstChild) {
+    employeeList.removeChild(employeeList.firstChild);
+  }
   
-  // Add rows for each employee
-  employees.forEach(employee => {
-    const row = document.createElement("ui5-table-row");
+  // Add items for each employee
+  for (const employee of employees) {
+    const listItem = document.createElement("ui5-li-custom");
+    listItem.setAttribute("data-employee-id", employee.userId);
     
-    // ID Cell
-    const idCell = document.createElement("ui5-table-cell");
-    idCell.textContent = employee.id;
-    row.appendChild(idCell);
+    // Create the custom list item content
+    const itemContent = document.createElement("div");
+    itemContent.className = "employee-list-item";
     
-    // Name Cell
-    const nameCell = document.createElement("ui5-table-cell");
-    nameCell.textContent = `${employee.firstName} ${employee.lastName}`;
-    row.appendChild(nameCell);
+    // Create avatar
+    const avatar = document.createElement("ui5-avatar");
+    avatar.size = "S";
+    avatar.initials = `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
     
-    // Position Cell
-    const positionCell = document.createElement("ui5-table-cell");
-    positionCell.textContent = employee.position;
-    row.appendChild(positionCell);
+    // Try to get employee photo
+    try {
+      const photoData = await getUserPhoto(employee.userId);
+      if (photoData) {
+        avatar.image = `data:image/png;base64,${photoData}`;
+      }
+    } catch (photoError) {
+      console.error(`Error loading photo for ${employee.userId}:`, photoError);
+      // Keep initials as fallback
+    }
     
-    // Department Cell
-    const deptCell = document.createElement("ui5-table-cell");
-    deptCell.textContent = employee.department;
-    row.appendChild(deptCell);
+    // Create details container
+    const detailsContainer = document.createElement("div");
+    detailsContainer.className = "employee-list-item-details";
     
-    // Actions Cell
-    const actionsCell = document.createElement("ui5-table-cell");
-    const viewButton = document.createElement("ui5-button");
-    viewButton.textContent = "View Profile";
-    viewButton.design = "Transparent";
-    viewButton.icon = "employee";
-    viewButton.classList.add("action-button");
-    viewButton.addEventListener("click", () => displayEmployeeProfile(employee));
-    actionsCell.appendChild(viewButton);
-    row.appendChild(actionsCell);
+    // Add name
+    const nameElement = document.createElement("div");
+    nameElement.className = "employee-list-item-name";
+    nameElement.textContent = `${employee.firstName} ${employee.lastName}`;
+    detailsContainer.appendChild(nameElement);
     
-    // Store employee data with the row for reference
-    row.addEventListener("click", () => displayEmployeeProfile(employee));
+    // Add position & department
+    const subtitleElement = document.createElement("div");
+    subtitleElement.className = "employee-list-item-subtitle";
+    const position = employee.jobTitle || "Not specified";
+    const department = employee.department || "Not specified";
+    subtitleElement.textContent = `${position}, ${department}`;
+    detailsContainer.appendChild(subtitleElement);
     
-    // Add row to table
-    employeeTable.appendChild(row);
-  });
+    // Add email
+    const emailElement = document.createElement("div");
+    emailElement.className = "employee-list-item-subtitle";
+    emailElement.textContent = employee.email || "No email";
+    detailsContainer.appendChild(emailElement);
+    
+    // Assemble list item
+    itemContent.appendChild(avatar);
+    itemContent.appendChild(detailsContainer);
+    listItem.appendChild(itemContent);
+    
+    // Add click handler
+    listItem.addEventListener("click", () => {
+      displayEmployeeProfile(employee);
+      
+      // Update selection in list
+      const items = employeeList.querySelectorAll("ui5-li-custom");
+      items.forEach(item => {
+        if (item.getAttribute("data-employee-id") === employee.userId) {
+          item.selected = true;
+        } else {
+          item.selected = false;
+        }
+      });
+    });
+    
+    // Add list item to the list
+    employeeList.appendChild(listItem);
+  }
 }
 
-function showMessage(message) {
-  // For now, we'll just use an alert, but this could be replaced with a UI5 MessageToast or Dialog
-  alert(message);
+// Display employee profile with data from SuccessFactors API
+async function displayEmployeeProfile(employeeData) {
+  try {
+    setLoading(true);
+    selectedEmployeeId = employeeData.userId;
+    
+    // Update list selection
+    const listItems = employeeList.querySelectorAll("ui5-li-custom");
+    listItems.forEach(item => {
+      if (item.getAttribute("data-employee-id") === employeeData.userId) {
+        item.selected = true;
+      } else {
+        item.selected = false;
+      }
+    });
+    
+    // Get detailed employee information
+    const employeeDetails = await getUserDetails(employeeData.userId);
+    
+    if (!employeeDetails) {
+      showToast("Could not retrieve employee details.");
+      setLoading(false);
+      return;
+    }
+    
+    // Update card header
+    const cardHeader = document.getElementById("employeeCardHeader");
+    cardHeader.title = `${employeeDetails.firstName} ${employeeDetails.lastName}`;
+    cardHeader.subtitle = employeeDetails.jobTitle || "Not specified";
+    
+    // Update avatar
+    const avatar = document.getElementById("employeeAvatar");
+    avatar.initials = `${employeeDetails.firstName.charAt(0)}${employeeDetails.lastName.charAt(0)}`;
+    
+    // Try to get employee photo
+    try {
+      const photoData = await getUserPhoto(employeeData.userId);
+      if (photoData) {
+        // If we have photo data, set it to the avatar
+        avatar.image = `data:image/png;base64,${photoData}`;
+      }
+    } catch (photoError) {
+      console.error("Error loading employee photo:", photoError);
+      // Keep the initials as fallback
+    }
+    
+    // Update personal information
+    document.getElementById("employeeName").value = `${employeeDetails.firstName} ${employeeDetails.lastName}`;
+    document.getElementById("employeeEmail").value = employeeDetails.email || "Not specified";
+    document.getElementById("employeePhone").value = employeeDetails.phoneNumber || "Not specified";
+    document.getElementById("employeeBirthday").value = employeeDetails.dateOfBirth || "";
+    
+    // Update employment details
+    document.getElementById("employeeId").value = employeeDetails.userId;
+    document.getElementById("employeeDepartment").value = employeeDetails.department || "Not specified";
+    document.getElementById("employeePosition").value = employeeDetails.jobTitle || "Not specified";
+    document.getElementById("employeeHireDate").value = employeeDetails.hireDate || "";
+    
+    // Get and update performance metrics (mock data)
+    const performanceData = await getEmployeePerformance(employeeData.userId);
+    if (performanceData) {
+      document.getElementById("performanceRating").value = performanceData.performanceRating || 0;
+      document.getElementById("projectCompletion").value = performanceData.projectCompletion || 0;
+      document.getElementById("teamCollaboration").value = performanceData.teamCollaboration || 0;
+    }
+    
+    // Show profile section right below the selected employee
+    employeeProfileSection.style.display = "block";
+    
+    // Scroll to profile section
+    employeeProfileSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (error) {
+    console.error("Error displaying employee profile:", error);
+    showToast("An error occurred while loading the employee profile.");
+  } finally {
+    setLoading(false);
+  }
+}
+
+// Show toast message
+function showToast(message) {
+  // Create or reuse toast element
+  let toast = document.getElementById("messageToast");
+  
+  if (!toast) {
+    toast = document.createElement("ui5-toast");
+    toast.id = "messageToast";
+    toast.setAttribute("placement", "MiddleCenter");
+    document.body.appendChild(toast);
+  }
+  
+  toast.textContent = message;
+  toast.show();
 }
 
 // Initialize the application
@@ -304,11 +346,36 @@ document.addEventListener("DOMContentLoaded", function() {
   // Set theme
   setTheme("sap_horizon");
   
-  // Initialize employee table with all employees
-  initializeEmployeeTable();
+  // Add loading indicator to page
+  const busyIndicator = document.createElement("ui5-busy-indicator");
+  busyIndicator.id = "loadingIndicator";
+  busyIndicator.size = "Medium";
+  busyIndicator.active = true;
+  busyIndicator.style.display = "none";
+  busyIndicator.style.margin = "2rem auto";
+  document.querySelector(".content-container").insertBefore(busyIndicator, employeeResultsContainer);
   
-  // Display the first employee profile as default
-  if (mockEmployees.length > 0) {
-    displayEmployeeProfile(mockEmployees[0]);
-  }
+  // Set up event listeners for list items
+  employeeList.addEventListener("item-click", (event) => {
+    const employeeId = event.detail.item.getAttribute("data-employee-id");
+    const employee = currentEmployees.find(emp => emp.userId === employeeId);
+    if (employee) {
+      displayEmployeeProfile(employee);
+    }
+  });
+  
+  // Handle Enter key on search field
+  searchInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm.length >= 2) {
+        searchEmployee(searchTerm);
+      } else {
+        showToast("Please enter at least 2 characters to search");
+      }
+    }
+  });
+  
+  // Initially hide the profile section
+  employeeProfileSection.style.display = "none";
 });
