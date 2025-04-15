@@ -1,7 +1,7 @@
 {
     "name": "ui5webcomponents",
     "version": "1.0.0",
-    "description": "",
+    "description": "Employee Profile Application with UI5 Web Components",
     "engines": {
         "node": ">=0.12"
     },
@@ -13,7 +13,9 @@
         "zip": "cd dist/ && npx bestzip ../ui5webcomponents.zip *"
     },
     "dependencies": {
-        "@ui5/webcomponents": "^1.0.2"
+        "@ui5/webcomponents": "^1.0.2",
+        "@ui5/webcomponents-fiori": "^1.0.2",
+        "@ui5/webcomponents-icons": "^1.0.2"
     },
     "devDependencies": {
         "vite": "^2.7.2"

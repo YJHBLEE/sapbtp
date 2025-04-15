@@ -1,0 +1,7 @@
+# Exclude node_modules from all directories
+**/node_modules/
+**/dist/
+
+# Exclude mta_archives and resources folders from all directories
+/mta_archives/
+/resources/

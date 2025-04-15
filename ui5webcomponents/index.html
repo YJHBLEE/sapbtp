@@ -1,41 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>UI5 Web Components</title>
+    <title>Employee Profile - SAP BTP Demo</title>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: var(--sapFontFamily, "72", "72full", Arial, Helvetica, sans-serif);
+        background-color: var(--sapBackgroundColor, #f7f7f7);
+      }
+      .content-container {
+        padding: 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .search-container {
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .search-container ui5-input {
+        flex-grow: 1;
+      }
+      .employee-profile {
+        box-shadow: var(--sapContent_Shadow1, 0 0 0.25rem 0 rgba(0,0,0,0.2));
+        margin-bottom: 1rem;
+      }
+      .action-button {
+        margin-right: 0.5rem;
+      }
+      ui5-card {
+        margin-bottom: 1rem;
+      }
+      ui5-panel {
+        margin-bottom: 1rem;
+      }
+      ui5-table {
+        width: 100%;
+      }
+    </style>
   </head>
 
   <body>
-    <ui5-title id="title">Welcome to UI5 Web Components!</ui5-title>
-    <br /><br />
+    <!-- Shell Bar -->
+    <ui5-shellbar
+      primary-title="SAP BTP Demo"
+      secondary-title="Employee Profile"
+      show-co-pilot
+      show-notifications
+      show-product-switch
+      show-menu-button>
+      <ui5-avatar slot="profile" size="XS"></ui5-avatar>
+    </ui5-shellbar>
 
-    <ui5-message-strip design="Warning" hide-close-button>
-      Adding more components? Check the sample page of the component and add the
-      corresponding import statement in `src/index.js`
-    </ui5-message-strip>
-    <br /><br />
-
-    <ui5-date-picker style="width: 300px;"></ui5-date-picker>
-    <br /><br />
-
-    <ui5-button design="Positive">Positive</ui5-button>
-    <ui5-button design="Negative">Negative</ui5-button>
-    <br /><br />
-
-    <ui5-switch design="Graphical" checked></ui5-switch>
-    <br />
-    <ui5-button id="openDialogButton">Open Dialog</ui5-button>
-    <br />
-
-    <ui5-dialog id="hello-dialog" header-text="Dialogs are easy!">
-      <div stype="padding: 2rem; display:flex; justify-content: center;">
-        Hello World!
-        <ui5-button id="closeDialogButton">Dismiss</ui5-button>
+    <div class="content-container">
+      <!-- Search Container -->
+      <div class="search-container">
+        <ui5-input id="employeeSearch" placeholder="Search employee by name or ID..."></ui5-input>
+        <ui5-button id="searchButton" design="Emphasized">Search</ui5-button>
       </div>
-    </ui5-dialog>
-    <ui5-button id="themeDialogButton" on:click={switchTheme}>Change Theme</ui5-button>
-    <br />
-    <ui5-label id="myThemeLabel"></ui5-label>
+
+      <!-- Employee List -->
+      <ui5-panel id="employeeListPanel" header-text="Employee Directory" collapsed>
+        <ui5-table id="employeeTable">
+          <ui5-table-column slot="columns" style="width: 12rem">
+            <ui5-label>Employee ID</ui5-label>
+          </ui5-table-column>
+          <ui5-table-column slot="columns">
+            <ui5-label>Name</ui5-label>
+          </ui5-table-column>
+          <ui5-table-column slot="columns">
+            <ui5-label>Position</ui5-label>
+          </ui5-table-column>
+          <ui5-table-column slot="columns">
+            <ui5-label>Department</ui5-label>
+          </ui5-table-column>
+          <ui5-table-column slot="columns">
+            <ui5-label>Actions</ui5-label>
+          </ui5-table-column>
+        </ui5-table>
+      </ui5-panel>
+
+      <!-- Employee Profile Section -->
+      <div id="employeeProfileSection" style="margin-top: 1rem;">
+        <ui5-card id="employeeProfileCard" class="employee-profile">
+          <ui5-card-header
+            id="employeeCardHeader"
+            title="Employee Profile"
+            subtitle="Select an employee to view details">
+            <ui5-avatar id="employeeAvatar" slot="avatar"></ui5-avatar>
+          </ui5-card-header>
+          
+          <div class="employee-details" style="padding: 1rem;">
+            <!-- Two-column layout for employee details -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <ui5-title level="H4">Personal Information</ui5-title>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Full Name:</ui5-label>
+                  <ui5-input id="employeeName" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Email:</ui5-label>
+                  <ui5-input id="employeeEmail" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Phone:</ui5-label>
+                  <ui5-input id="employeePhone" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Date of Birth:</ui5-label>
+                  <ui5-date-picker id="employeeBirthday" readonly></ui5-date-picker>
+                </div>
+              </div>
+              
+              <div>
+                <ui5-title level="H4">Employment Details</ui5-title>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Employee ID:</ui5-label>
+                  <ui5-input id="employeeId" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Department:</ui5-label>
+                  <ui5-input id="employeeDepartment" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Position:</ui5-label>
+                  <ui5-input id="employeePosition" readonly></ui5-input>
+                </div>
+                <div style="margin: 1rem 0;">
+                  <ui5-label>Hire Date:</ui5-label>
+                  <ui5-date-picker id="employeeHireDate" readonly></ui5-date-picker>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Performance Indicators -->
+            <div style="margin-top: 1.5rem;">
+              <ui5-title level="H4">Performance Metrics</ui5-title>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                <ui5-card>
+                  <ui5-card-header title="Performance Rating" subtitle="Annual Review"></ui5-card-header>
+                  <div style="padding: 1rem; text-align: center;">
+                    <ui5-rating-indicator id="performanceRating" readonly max-value="5"></ui5-rating-indicator>
+                  </div>
+                </ui5-card>
+                
+                <ui5-card>
+                  <ui5-card-header title="Project Completion" subtitle="Last Quarter"></ui5-card-header>
+                  <div style="padding: 1rem; text-align: center;">
+                    <ui5-progress-indicator id="projectCompletion" value="0" show-value></ui5-progress-indicator>
+                  </div>
+                </ui5-card>
+                
+                <ui5-card>
+                  <ui5-card-header title="Team Collaboration" subtitle="Peer Review"></ui5-card-header>
+                  <div style="padding: 1rem; text-align: center;">
+                    <ui5-rating-indicator id="teamCollaboration" readonly max-value="5"></ui5-rating-indicator>
+                  </div>
+                </ui5-card>
+              </div>
+            </div>
+          </div>
+        </ui5-card>
+      </div>
+    </div>
 
     <script type="module" src="./src/index.js"></script>
   </body>
