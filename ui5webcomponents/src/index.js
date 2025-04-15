@@ -295,7 +295,7 @@ async function displayEmployeeProfile(employeeData) {
     // Update personal information
     document.getElementById("employeeName").value = `${employeeDetails.firstName} ${employeeDetails.lastName}`;
     document.getElementById("employeeEmail").value = employeeDetails.email || "Not specified";
-    document.getElementById("employeePhone").value = employeeDetails.phoneNumber || "Not specified";
+    document.getElementById("employeePhone").value = employeeDetails.businessPhone || "Not specified";
     document.getElementById("employeeBirthday").value = employeeDetails.dateOfBirth || "";
     
     // Update employment details

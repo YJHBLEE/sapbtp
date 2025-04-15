@@ -76,7 +76,7 @@ export const getEmployeePerformance = async (userId) => {
    */
   export const getUserDetails = async (userId) => {
     try {
-      const response = await fetch(`${SF_API_BASE_URL}/User('${encodeURIComponent(userId)}')/?$select=userId,firstName,lastName,email,department,phoneNumber,jobTitle,dateOfBirth,hireDate&$format=json`, {
+      const response = await fetch(`${SF_API_BASE_URL}/User('${encodeURIComponent(userId)}')?$select=userId,firstName,lastName,email,department,businessPhone,jobTitle,dateOfBirth,hireDate&$format=json`, {
         method: 'GET',
         headers: getRequestHeaders()
       });
@@ -139,7 +139,7 @@ export const getEmployeePerformance = async (userId) => {
       firstName: "John",
       lastName: "Smith",
       email: "john.smith@company.com",
-      phoneNumber: "+1 (555) 123-4567",
+      businessPhone: "+1 (555) 123-4567",
       department: "Engineering",
       division: "R&D",
       jobTitle: "Senior Developer",
@@ -154,7 +154,7 @@ export const getEmployeePerformance = async (userId) => {
       firstName: "Sarah",
       lastName: "Johnson",
       email: "sarah.johnson@company.com",
-      phoneNumber: "+1 (555) 234-5678",
+      businessPhone: "+1 (555) 234-5678",
       department: "Marketing",
       division: "Digital Marketing",
       jobTitle: "Marketing Manager",
@@ -169,7 +169,7 @@ export const getEmployeePerformance = async (userId) => {
       firstName: "Michael",
       lastName: "Williams",
       email: "michael.williams@company.com",
-      phoneNumber: "+1 (555) 345-6789",
+      businessPhone: "+1 (555) 345-6789",
       department: "Finance",
       division: "Accounting",
       jobTitle: "Financial Analyst",
@@ -184,7 +184,7 @@ export const getEmployeePerformance = async (userId) => {
       firstName: "Emma",
       lastName: "Davis",
       email: "emma.davis@company.com",
-      phoneNumber: "+1 (555) 456-7890",
+      businessPhone: "+1 (555) 456-7890",
       department: "Human Resources",
       division: "Talent Acquisition",
       jobTitle: "HR Specialist",
@@ -199,7 +199,7 @@ export const getEmployeePerformance = async (userId) => {
       firstName: "David",
       lastName: "Brown",
       email: "david.brown@company.com",
-      phoneNumber: "+1 (555) 567-8901",
+      businessPhone: "+1 (555) 567-8901",
       department: "Sales",
       division: "Enterprise Sales",
       jobTitle: "Sales Representative",
