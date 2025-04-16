@@ -1,223 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Employee Profile - SAP BTP Demo</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: var(--sapFontFamily, "72", "72full", Arial, Helvetica, sans-serif);
-        background-color: var(--sapBackgroundColor, #f7f7f7);
-      }
-      .content-container {
-        padding: 1rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-      .search-container {
-        margin: 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .search-container ui5-input {
-        flex-grow: 1;
-      }
-      .employee-profile {
-        box-shadow: var(--sapContent_Shadow1, 0 0 0.25rem 0 rgba(0,0,0,0.2));
-        margin-bottom: 1rem;
-      }
-      .action-button {
-        margin-right: 0.5rem;
-      }
-      ui5-card {
-        margin-bottom: 1rem;
-      }
-      ui5-panel {
-        margin-bottom: 1rem;
-      }
-      ui5-avatar {
-        border-radius: 50%;
-        overflow: hidden;
-      }
-      .employee-photo {
-        display: inline-block;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 50%;
-        overflow: hidden;
-        vertical-align: middle;
-        margin-right: 0.5rem;
-      }
-      .name-with-photo {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      #employeeAvatar {
-        width: 5rem;
-        height: 5rem;
-      }
-      .employee-results {
-        margin-bottom: 1rem;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        box-shadow: var(--sapContent_Shadow1, 0 0 0.25rem 0 rgba(0,0,0,0.2));
-        background-color: white;
-      }
-      .employee-list-item {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem;
-        cursor: pointer;
-      }
-      .employee-list-item:hover {
-        background-color: var(--sapList_Hover_Background, #f5f5f5);
-      }
-      .employee-list-item-details {
-        margin-left: 1rem;
-        flex-grow: 1;
-      }
-      .employee-list-item-name {
-        font-weight: bold;
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-      }
-      .employee-list-item-subtitle {
-        color: var(--sapContent_LabelColor, #6a6d70);
-        font-size: 0.875rem;
-      }
-      #employeeResultsContainer {
-        display: none;
-      }
-    </style>
-  </head>
+<head>
+<title>Employee Profile - SAP BTP Demo</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--sapFontFamily, "72", "72full", Arial, Helvetica, sans-serif);
+    background-color: var(--sapBackgroundColor, #f7f7f7);
+  }
+  .content-container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .search-container {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative; /* 검색 컨테이너에 relative 포지션 설정 */
+    z-index: 10; /* 다른 요소보다 위에 표시 */
+  }
+  .search-container ui5-input {
+    flex-grow: 1;
+  }
+  .employee-profile {
+    box-shadow: var(--sapContent_Shadow1, 0 0 0.25rem 0 rgba(0,0,0,0.2));
+    margin-bottom: 1rem;
+  }
+  .action-button {
+    margin-right: 0.5rem;
+  }
+  ui5-card {
+    margin-bottom: 1rem;
+  }
+  ui5-panel {
+    margin-bottom: 1rem;
+  }
+  ui5-avatar {
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .employee-photo {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+  }
+  .name-with-photo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #employeeAvatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--sapContent_ImagePlaceholderBackground, #ccc);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--sapContent_ImagePlaceholderForeground, #fff);
+  }
 
-  <body>
-    <!-- Shell Bar -->
-    <ui5-shellbar
-      primary-title="SAP BTP Demo"
-      secondary-title="Employee Profile"
-      show-co-pilot
-      show-notifications
-      show-product-switch
-      show-menu-button>
-      <ui5-avatar slot="profile" size="XS"></ui5-avatar>
-    </ui5-shellbar>
+  #employeeAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This ensures the image maintains aspect ratio */
+  }
+  
+  .employee-results {
+    position: absolute; /* 플로팅 형태로 설정 */
+    top: 100%; /* 검색창 바로 아래 */
+    left: 0;
+    right: 0;
+    margin-top: 0.25rem;
+    max-height: 300px; /* 최대 높이 설정 */
+    overflow-y: auto; /* 내부 스크롤 가능 */
+    border-radius: 0.5rem;
+    box-shadow: var(--sapContent_Shadow2, 0 0.25rem 1rem 0 rgba(0,0,0,0.2));
+    background-color: white;
+    z-index: 100; /* 다른 요소보다 위에 표시 */
+  }
+  .employee-list-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    cursor: pointer;
+  }
+  .employee-list-item:hover {
+    background-color: var(--sapList_Hover_Background, #f5f5f5);
+  }
+  .employee-list-item-details {
+    margin-left: 1rem;
+    flex-grow: 1;
+  }
+  .employee-list-item-name {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  .employee-list-item-subtitle {
+    color: var(--sapContent_LabelColor, #6a6d70);
+    font-size: 0.875rem;
+  }
+  #employeeResultsContainer {
+    display: none;
+  }
+  #emptyStateMessage {
+    margin-top: 2rem; /* 검색창과 빈 상태 메시지 사이 간격 */
+  }
+</style>
+</head>
 
-    <div class="content-container">
-      <!-- Search Container -->
-      <div class="search-container">
-        <ui5-input id="employeeSearch" placeholder="Search employee by name or email (min 2 characters)..."></ui5-input>
-        <ui5-button id="searchButton" design="Emphasized">Search</ui5-button>
-      </div>
+<body>
+<!-- Shell Bar -->
+<ui5-shellbar
+  primary-title="SAP BTP Demo"
+  secondary-title="Employee Profile"
+  show-co-pilot
+  show-notifications
+  show-product-switch
+  show-menu-button>
+  <ui5-avatar slot="profile" size="XS"></ui5-avatar>
+</ui5-shellbar>
 
-      <!-- Employee Results List -->
-      <div id="employeeResultsContainer" class="employee-results">
-        <ui5-list id="employeeList" mode="SingleSelect"></ui5-list>
-      </div>
+<div class="content-container">
+  <!-- Search Container -->
+  <div class="search-container">
+    <ui5-input id="employeeSearch" placeholder="Search employee by name or email (min 2 characters)..."></ui5-input>
+    <ui5-button id="searchButton" design="Emphasized">Search</ui5-button>
+    
+    <!-- Employee Results List - Floating -->
+    <div id="employeeResultsContainer" class="employee-results">
+      <ui5-list id="employeeList" mode="SingleSelect"></ui5-list>
+    </div>
+  </div>
 
-      <!-- Empty State Message -->
-      <div id="emptyStateMessage" style="text-align: center; padding: 2rem;">
-        <ui5-icon name="employee" style="font-size: 3rem; color: var(--sapContent_NonInteractiveIconColor);"></ui5-icon>
-        <ui5-title level="H2">Employee Search</ui5-title>
-        <ui5-label>Enter a name or email to search for employees</ui5-label>
-      </div>
+  <!-- Empty State Message -->
+  <div id="emptyStateMessage" style="text-align: center; padding: 2rem;">
+    <ui5-icon name="employee" style="font-size: 3rem; color: var(--sapContent_NonInteractiveIconColor);"></ui5-icon>
+    <ui5-title level="H2">Employee Search</ui5-title>
+    <ui5-label>Enter a name or email to search for employees</ui5-label>
+  </div>
 
-      <!-- Employee Profile Section -->
-      <div id="employeeProfileSection" style="margin-top: 1rem; display: none;">
-        <ui5-card id="employeeProfileCard" class="employee-profile">
-          <ui5-card-header
-            id="employeeCardHeader"
-            title="Employee Profile"
-            subtitle="Select an employee to view details">
-            <ui5-avatar id="employeeAvatar" slot="avatar"></ui5-avatar>
-          </ui5-card-header>
-          
-          <div class="employee-details" style="padding: 1rem;">
-            <!-- Two-column layout for employee details -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div>
-                <ui5-title level="H4">Personal Information</ui5-title>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Full Name:</ui5-label>
-                  <ui5-input id="employeeName" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Email:</ui5-label>
-                  <ui5-input id="employeeEmail" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Phone:</ui5-label>
-                  <ui5-input id="employeePhone" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Date of Birth:</ui5-label>
-                  <ui5-date-picker id="employeeBirthday" readonly></ui5-date-picker>
-                </div>
-              </div>
-              
-              <div>
-                <ui5-title level="H4">Employment Details</ui5-title>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Employee ID:</ui5-label>
-                  <ui5-input id="employeeId" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Department:</ui5-label>
-                  <ui5-input id="employeeDepartment" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Position:</ui5-label>
-                  <ui5-input id="employeePosition" readonly></ui5-input>
-                </div>
-                <div style="margin: 1rem 0;">
-                  <ui5-label>Hire Date:</ui5-label>
-                  <ui5-date-picker id="employeeHireDate" readonly></ui5-date-picker>
-                </div>
-              </div>
+  <!-- Employee Profile Section -->
+  <div id="employeeProfileSection" style="margin-top: 1rem; display: none;">
+    <ui5-card id="employeeProfileCard" class="employee-profile">
+      <ui5-card-header
+        id="employeeCardHeader"
+        title="Employee Profile"
+        subtitle="Select an employee to view details">
+        <ui5-avatar id="employeeAvatar" slot="avatar"></ui5-avatar>
+      </ui5-card-header>
+      
+      <div class="employee-details" style="padding: 1rem;">
+        <!-- Two-column layout for employee details -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <ui5-title level="H4">Personal Information</ui5-title>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Full Name:</ui5-label>
+              <ui5-input id="employeeName" readonly></ui5-input>
             </div>
-            
-            <!-- API Status Message -->
-            <div id="apiStatusMessage" style="margin: 1rem 0; display: none;">
-              <ui5-message-strip design="Information" style="margin-bottom: 1rem;">
-                Loading data from SuccessFactors API...
-              </ui5-message-strip>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Email:</ui5-label>
+              <ui5-input id="employeeEmail" readonly></ui5-input>
             </div>
-            
-            <!-- Performance Indicators -->
-            <div style="margin-top: 1.5rem;">
-              <ui5-title level="H4">Performance Metrics</ui5-title>
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                <ui5-card>
-                  <ui5-card-header title="Performance Rating" subtitle="Annual Review"></ui5-card-header>
-                  <div style="padding: 1rem; text-align: center;">
-                    <ui5-rating-indicator id="performanceRating" readonly max-value="5"></ui5-rating-indicator>
-                  </div>
-                </ui5-card>
-                
-                <ui5-card>
-                  <ui5-card-header title="Project Completion" subtitle="Last Quarter"></ui5-card-header>
-                  <div style="padding: 1rem; text-align: center;">
-                    <ui5-progress-indicator id="projectCompletion" value="0" show-value></ui5-progress-indicator>
-                  </div>
-                </ui5-card>
-                
-                <ui5-card>
-                  <ui5-card-header title="Team Collaboration" subtitle="Peer Review"></ui5-card-header>
-                  <div style="padding: 1rem; text-align: center;">
-                    <ui5-rating-indicator id="teamCollaboration" readonly max-value="5"></ui5-rating-indicator>
-                  </div>
-                </ui5-card>
-              </div>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Phone:</ui5-label>
+              <ui5-input id="employeePhone" readonly></ui5-input>
+            </div>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Date of Birth:</ui5-label>
+              <ui5-date-picker id="employeeBirthday" readonly></ui5-date-picker>
             </div>
           </div>
-        </ui5-card>
+          
+          <div>
+            <ui5-title level="H4">Employment Details</ui5-title>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Employee ID:</ui5-label>
+              <ui5-input id="employeeId" readonly></ui5-input>
+            </div>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Department:</ui5-label>
+              <ui5-input id="employeeDepartment" readonly></ui5-input>
+            </div>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Position:</ui5-label>
+              <ui5-input id="employeePosition" readonly></ui5-input>
+            </div>
+            <div style="margin: 1rem 0;">
+              <ui5-label>Hire Date:</ui5-label>
+              <ui5-date-picker id="employeeHireDate" readonly></ui5-date-picker>
+            </div>
+          </div>
+        </div>
+        
+        <!-- API Status Message -->
+        <div id="apiStatusMessage" style="margin: 1rem 0; display: none;">
+          <ui5-message-strip design="Information" style="margin-bottom: 1rem;">
+            Loading data from SuccessFactors API...
+          </ui5-message-strip>
+        </div>
+        
+        <!-- Performance Indicators -->
+        <div style="margin-top: 1.5rem;">
+          <ui5-title level="H4">Performance Metrics</ui5-title>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <ui5-card class="performance-card">
+              <ui5-card-header title="Performance Rating" subtitle="Annual Review"></ui5-card-header>
+              <div class="performance-metric">
+                <ui5-rating-indicator id="performanceRating" readonly max-value="5"></ui5-rating-indicator>
+                <div class="metric-value" id="perfRatingValue">3.5/5</div>
+                <div class="rating-description" id="perfRatingDesc">Exceeds Expectations</div>
+              </div>
+            </ui5-card>
+            
+            <ui5-card class="performance-card">
+              <ui5-card-header title="Project Completion" subtitle="Last Quarter"></ui5-card-header>
+              <div class="performance-metric">
+                <ui5-progress-indicator id="projectCompletion" value="0" show-value></ui5-progress-indicator>
+                <div class="metric-value" id="projCompletionValue">82%</div>
+                <div class="rating-description" id="projCompletionDesc">Good</div>
+              </div>
+            </ui5-card>
+            
+            <ui5-card class="performance-card">
+              <ui5-card-header title="Team Collaboration" subtitle="Peer Review"></ui5-card-header>
+              <div class="performance-metric">
+                <ui5-rating-indicator id="teamCollaboration" readonly max-value="5"></ui5-rating-indicator>
+                <div class="metric-value" id="teamCollabValue">4.2/5</div>
+                <div class="rating-description" id="teamCollabDesc">Strong Collaborator</div>
+              </div>
+            </ui5-card>
+          </div>
+        </div>
       </div>
-    </div>
+    </ui5-card>
+  </div>
+</div>
 
-    <script type="module" src="./src/index.js"></script>
-  </body>
+<script type="module" src="./src/index.js"></script>
+</body>
 </html>

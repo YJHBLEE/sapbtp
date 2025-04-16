@@ -110,17 +110,17 @@ function setLoading(loading) {
     busyIndicator.size = "Medium";
     busyIndicator.active = true;
     busyIndicator.style.display = "block";
-    busyIndicator.style.margin = "2rem auto";
+    busyIndicator.style.position = "absolute";
+    busyIndicator.style.top = "50%";
+    busyIndicator.style.left = "50%";
+    busyIndicator.style.transform = "translate(-50%, -50%)";
+    busyIndicator.style.zIndex = "200";
     
-    // Insert before the employee results container
-    employeeResultsContainer.parentNode.insertBefore(busyIndicator, employeeResultsContainer);
+    // 로딩 인디케이터를 검색 결과 컨테이너에 직접 추가
+    employeeResultsContainer.appendChild(busyIndicator);
   } else if (loadingIndicator) {
-    // Remove loading indicator if it exists
-    if (loading)     if (loading) {
-      loadingIndicator.style.display = "block";
-    } else {
-      loadingIndicator.style.display = "none";
-    }
+    // Show or hide loading indicator based on loading state
+    loadingIndicator.style.display = loading ? "block" : "none";
   }
 }
 
@@ -132,6 +132,10 @@ async function searchEmployee(searchTerm) {
   }
   
   try {
+    // 검색 결과 컨테이너 먼저 표시 (로딩 상태 표시를 위해)
+    employeeResultsContainer.style.display = "block";
+    
+    // 로딩 상태 설정
     setLoading(true);
     
     // Call the SuccessFactors API to search users
@@ -142,13 +146,9 @@ async function searchEmployee(searchTerm) {
       // Update results list
       await updateEmployeeList(employees);
       
-      // Display first match
-      await displayEmployeeProfile(employees[0]);
-      
-      // Show results and hide empty state
+      // 결과가 있으면 계속 표시
       employeeResultsContainer.style.display = "block";
       emptyStateMessage.style.display = "none";
-      employeeProfileSection.style.display = "block";
     } else {
       showToast("No employees found matching your search criteria.");
       employeeResultsContainer.style.display = "none";
@@ -160,8 +160,9 @@ async function searchEmployee(searchTerm) {
     showToast("An error occurred while searching. Please try again.");
     employeeResultsContainer.style.display = "none";
     emptyStateMessage.style.display = "block";
+    employeeProfileSection.style.display = "none";
   } finally {
-    setLoading(false);
+    setLoading(false); // 항상 로딩 상태 종료
   }
 }
 
@@ -187,14 +188,18 @@ async function updateEmployeeList(employees) {
     avatar.initials = `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
     
     // Try to get employee photo
+    
     try {
       const photoData = await getUserPhoto(employee.userId);
-      if (photoData) {
-        avatar.image = `data:image/png;base64,${photoData}`;
+      if (photoData && photoData.length > 100) { // 최소 길이 체크
+        console.log('photoData:', photoData);
+        avatar.setAttribute("image", `data:image/png;base64,${photoData}`);
+      } else {
+        avatar.initials = `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
       }
     } catch (photoError) {
       console.error(`Error loading photo for ${employee.userId}:`, photoError);
-      // Keep initials as fallback
+      avatar.initials = `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`;
     }
     
     // Create details container
@@ -228,17 +233,14 @@ async function updateEmployeeList(employees) {
     
     // Add click handler
     listItem.addEventListener("click", () => {
+      // 직원 프로필 표시
       displayEmployeeProfile(employee);
       
-      // Update selection in list
-      const items = employeeList.querySelectorAll("ui5-li-custom");
-      items.forEach(item => {
-        if (item.getAttribute("data-employee-id") === employee.userId) {
-          item.selected = true;
-        } else {
-          item.selected = false;
-        }
-      });
+      // 검색 결과 오버레이 닫기
+      employeeResultsContainer.style.display = "none";
+      
+      // 검색창 초기화
+      searchInput.value = "";
     });
     
     // Add list item to the list
@@ -251,16 +253,6 @@ async function displayEmployeeProfile(employeeData) {
   try {
     setLoading(true);
     selectedEmployeeId = employeeData.userId;
-    
-    // Update list selection
-    const listItems = employeeList.querySelectorAll("ui5-li-custom");
-    listItems.forEach(item => {
-      if (item.getAttribute("data-employee-id") === employeeData.userId) {
-        item.selected = true;
-      } else {
-        item.selected = false;
-      }
-    });
     
     // Get detailed employee information
     const employeeDetails = await getUserDetails(employeeData.userId);
@@ -295,7 +287,7 @@ async function displayEmployeeProfile(employeeData) {
     // Update personal information
     document.getElementById("employeeName").value = `${employeeDetails.firstName} ${employeeDetails.lastName}`;
     document.getElementById("employeeEmail").value = employeeDetails.email || "Not specified";
-    document.getElementById("employeePhone").value = employeeDetails.businessPhone || "Not specified";
+    document.getElementById("employeePhone").value = employeeDetails.phoneNumber || "Not specified";
     document.getElementById("employeeBirthday").value = employeeDetails.dateOfBirth || "";
     
     // Update employment details
@@ -312,7 +304,7 @@ async function displayEmployeeProfile(employeeData) {
       document.getElementById("teamCollaboration").value = performanceData.teamCollaboration || 0;
     }
     
-    // Show profile section right below the selected employee
+    // Show profile section
     employeeProfileSection.style.display = "block";
     
     // Scroll to profile section
@@ -321,7 +313,7 @@ async function displayEmployeeProfile(employeeData) {
     console.error("Error displaying employee profile:", error);
     showToast("An error occurred while loading the employee profile.");
   } finally {
-    setLoading(false);
+    setLoading(false); // 항상 로딩 상태 종료 보장
   }
 }
 
@@ -346,21 +338,28 @@ document.addEventListener("DOMContentLoaded", function() {
   // Set theme
   setTheme("sap_horizon");
   
-  // Add loading indicator to page
-  const busyIndicator = document.createElement("ui5-busy-indicator");
-  busyIndicator.id = "loadingIndicator";
-  busyIndicator.size = "Medium";
-  busyIndicator.active = true;
-  busyIndicator.style.display = "none";
-  busyIndicator.style.margin = "2rem auto";
-  document.querySelector(".content-container").insertBefore(busyIndicator, employeeResultsContainer);
+  // 클릭 이벤트 리스너 추가 - 검색 결과 외부 클릭 시 결과 컨테이너 닫기
+  document.addEventListener("click", function(event) {
+    // 검색 컨테이너 또는 그 자식 요소가 아닌 경우에만 검색 결과 닫기
+    const searchContainer = document.querySelector(".search-container");
+    if (searchContainer && !searchContainer.contains(event.target)) {
+      employeeResultsContainer.style.display = "none";
+    }
+  });
   
   // Set up event listeners for list items
   employeeList.addEventListener("item-click", (event) => {
     const employeeId = event.detail.item.getAttribute("data-employee-id");
     const employee = currentEmployees.find(emp => emp.userId === employeeId);
     if (employee) {
+      // 직원 프로필 표시
       displayEmployeeProfile(employee);
+      
+      // 검색 결과 오버레이 닫기
+      employeeResultsContainer.style.display = "none";
+      
+      // 검색창 초기화
+      searchInput.value = "";
     }
   });
   
@@ -373,6 +372,20 @@ document.addEventListener("DOMContentLoaded", function() {
       } else {
         showToast("Please enter at least 2 characters to search");
       }
+    }
+  });
+  
+  // 검색 입력란 클릭 시 이전 검색 결과 표시
+  searchInput.addEventListener("click", () => {
+    if (searchInput.value.trim().length >= 2 && currentEmployees.length > 0) {
+      employeeResultsContainer.style.display = "block";
+    }
+  });
+  
+  // 포커스 이벤트에서도 처리
+  searchInput.addEventListener("focus", () => {
+    if (searchInput.value.trim().length >= 2 && currentEmployees.length > 0) {
+      employeeResultsContainer.style.display = "block";
     }
   });
   

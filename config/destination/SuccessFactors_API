@@ -1,0 +1,24 @@
+#clientKey=<< Existing password/certificate removed on export >>
+#Password=<< Existing password/certificate removed on export >>
+#
+#Wed Apr 16 03:49:54 UTC 2025
+tokenServiceURLType=Dedicated
+audience=www.successfactors.com
+Description=[Do Not Delete] Destination to SAP SuccessFactors API
+User=sfadmin@SFHUB003119
+authnContextClassRef=urn\:oasis\:names\:tc\:SAML\:2.0\:ac\:classes\:PreviousSession
+tokenService.body.primaryemployment=true
+sap.header.X-SF-Process-Name=WorkZone for HR
+WebIDEEnabled=true
+sap-card-norm=true
+URL=https\://apisalesdemo8.successfactors.com
+Name=SuccessFactors_API
+WebIDEUsage=odata_gen
+CEP.EnableCsrfProtection=true
+Type=HTTP
+companyId=SFHUB003119
+HTML5.DynamicDestination=true
+Authentication=BasicAuthentication
+nameIdFormat=urn\:oasis\:names\:tc\:SAML\:1.1\:nameid-format\:unspecified
+ProxyType=Internet
+userIdSource=user_uuid
